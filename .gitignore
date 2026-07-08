@@ -1,0 +1,29 @@
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Job/script log dumps
+*.log
+build-llvm.out
+
+# Large artifacts that live alongside the repo, not in it
+llvm-project-src/
+llvm-cir/
+HeCBench/
+corpus/
+corpus-alpha01/
+containers/
+*.sif
+*.tar.gz
+
+# Locally-generated snapshots
+snapshots/
