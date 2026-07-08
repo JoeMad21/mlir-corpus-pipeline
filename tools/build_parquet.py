@@ -120,7 +120,7 @@ def build_row(entry, cap_bytes, ingest_utc):
 
     if ir_bytes > cap_bytes:
         cut = cap_bytes
-        while cut > 0 and (raw_bytes[cut] & 0xC0) == 0x80:
+        while cut > 0 and cut < len(raw_bytes) and (raw_bytes[cut] & 0xC0) == 0x80:
             cut -= 1
         ir_text = raw_bytes[:cut].decode('utf-8', errors='replace')
         truncated = True
