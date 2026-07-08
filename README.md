@@ -206,6 +206,41 @@ Not yet handled:
     tools/parse_snapshots.py          # IR-dump stream parser
     tools/build_parquet.py            # Parquet aggregation of the corpus
 
+## Aggregating and consuming the corpus
+
+After running the pipeline, aggregate the loose per-benchmark output trees
+into a single Hive-partitioned Parquet dataset:
+
+    python3 tools/build_parquet.py \
+        --input $PROJECT_ROOT/corpus-alpha01 \
+        --outdir $PROJECT_ROOT/corpus-parquet
+
+Policies applied during aggregation:
+
+* Snapshots over 2 MB (template-heavy whales) are capped and marked
+  `truncated=true`.
+* For each (benchmark_name, pass_name), only the most recent run is kept.
+* Snapshots that failed cir-opt roundtrip are skipped.
+* Output is partitioned by benchmark_name.
+
+Each row carries the IR text plus metadata: pass_class, pass_name,
+pass_index, ir_sha256, parent_sha256 (the lowering chain), dialects_present,
+and provenance hashes. On the reference 91-benchmark corpus this compresses
+141 MB of IR text down to ~7 MB on disk (zstd).
+
+Load the result with pyarrow:
+
+    import pyarrow.dataset as ds
+    d = ds.dataset("corpus-parquet", format="parquet", partitioning="hive")
+
+    # All snapshots for one pass, across every benchmark
+    flatten = d.to_table(filter=ds.field("pass_name") == "cir-flatten-cfg")
+
+Or with HuggingFace datasets:
+
+    from datasets import load_dataset
+    dset = load_dataset("parquet", data_files="corpus-parquet/**/*.parquet")
+
 ## Roadmap
 
 Near-term:
