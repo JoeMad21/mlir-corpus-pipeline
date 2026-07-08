@@ -12,7 +12,7 @@ retention: 71 clean successes, 19 partial-kept, 10 failures.
 
 ## What this is not
 
-Not yet a Polaris/HPC-scheduler variant. Not yet aggregated into Parquet.
+Not yet a Polaris/HPC-scheduler variant.
 Not yet handling Fortran (via Flang) or Python (via torch-mlir/xDSL). Those
 are planned; this repo is the working v0 for CUDA-host-side lowering.
 
@@ -204,12 +204,12 @@ Not yet handled:
     scripts/lower_one.sh              # Per-benchmark driver
     scripts/lower_all.sh              # Batch runner
     tools/parse_snapshots.py          # IR-dump stream parser
+    tools/build_parquet.py            # Parquet aggregation of the corpus
 
 ## Roadmap
 
 Near-term:
 
-* Parquet aggregation of the loose .mlir files into a queryable dataset
 * Full HeCBench sweep (~529 benchmarks) with longer timeout for whales
 
 Medium-term:
