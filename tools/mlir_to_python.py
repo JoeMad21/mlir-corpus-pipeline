@@ -135,19 +135,25 @@ def extract_signal(ir_text, max_lines):
 
     out = list(trimmed_header)
     out.append('')
+    # Hard line budget. We add functions in priority order and clip INSIDE
+    # a function if it would overflow, so a single large function (like main)
+    # can't blow the whole budget.
     budget = max_lines - len(out)
     included = 0
     for sig, body in user_funcs:
-        blk = body.splitlines()
-        if len(blk) > budget and included > 0:
-            out.append(f'// ... ({len(user_funcs) - included} more user functions omitted for length)')
+        if budget <= 0:
             break
+        blk = body.splitlines()
+        if len(blk) > budget:
+            # Clip this function to what fits, note the truncation.
+            blk = blk[:budget]
+            blk.append('    // ... (function body truncated to fit budget)')
         out.extend(blk)
         out.append('')
         budget -= (len(blk) + 1)
         included += 1
-        if budget <= 0:
-            break
+    if included < len(user_funcs):
+        out.append(f'// ... ({len(user_funcs) - included} more user functions omitted for length)')
 
     return '\n'.join(out), len(user_funcs), len(functions)
 
